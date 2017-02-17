@@ -23,14 +23,65 @@ typedef struct node *NODEPTR;
 struct node NIL;
 NODEPTR NILPTR = &NIL;
 
-// Function for searching for a node in a tree
-NODEPTR search(NODEPTR root, Interval I) {
-	if (root == NILPTR || (root->interval.low == I.low && root->interval.high == I.high))
-		return root;
-	if (I.low < root->interval.low)
-		return search(root->left, I);
-	else
-		return search(root->right, I);
+
+// Prototypes of functions required
+NODEPTR maximum(NODEPTR);
+NODEPTR minimum(NODEPTR);
+NODEPTR search(NODEPTR, Interval);
+void leftRotate(NODEPTR *, NODEPTR);
+void rightRotate(NODEPTR *, NODEPTR);
+void rbInsertFixup(NODEPTR *, NODEPTR);
+void rbInsert(NODEPTR *, Interval);
+void rbTransplant(NODEPTR *, NODEPTR, NODEPTR);
+void rbDeleteFixup(NODEPTR *, NODEPTR);
+void rbDelete(NODEPTR *, Interval);
+bool checkOverlap(Interval, Interval);
+Interval overlapSearch(NODEPTR, Interval);
+
+
+// Driver function
+int main() {
+	NIL.left = NIL.right = NIL.p = NILPTR;
+	NIL.color = BLACK;
+	NODEPTR tree = NILPTR;
+	
+	Interval intervals[] = {{15, 20}, {10, 30}, {17, 19}, {5, 20}, {12, 15}, {30, 40}};
+    
+    int n = sizeof(intervals)/sizeof(intervals[0]), i;
+    
+    for (i = 0; i < n; i++) {
+         rbInsert(&tree, intervals[i]);
+         cout << "Interval inserted: {" << intervals[i].low << ", " << intervals[i].high << "}" << endl;
+    }
+ 
+  
+    Interval I = {14, 16};
+ 
+    cout << "\nSearching for interval: {" << I.low << ", " << I.high << "}" << endl;
+    Interval result = overlapSearch(tree, I);
+    if (result.low == INT_MIN)
+        cout << "No Overlapping Interval." << endl;
+    else
+        cout << "Interval overlaps with {" << result.low << ", " << result.high << "}." << endl;
+        
+        
+    I = {21, 23};
+ 
+    cout << "\nSearching for interval: {" << I.low << ", " << I.high << "}" << endl;
+    result = overlapSearch(tree, I);
+    if (result.low == INT_MIN)
+        cout << "No Overlapping Interval." << endl;
+    else
+        cout << "Interval overlaps with {" << result.low << ", " << result.high << "}." << endl;
+    
+	return 0;
+}
+
+// Function for finding maximum in a tree
+NODEPTR maximum(NODEPTR root) {
+	while(root->right != NILPTR)
+		root = root->right;
+	return root;
 }
 
 // Function for finding minimum in a tree
@@ -40,11 +91,14 @@ NODEPTR minimum(NODEPTR root) {
 	return root;
 }
 
-// Function for finding maximum in a tree
-NODEPTR maximum(NODEPTR root) {
-	while(root->right != NILPTR)
-		root = root->right;
-	return root;
+// Function for searching for a node in a tree
+NODEPTR search(NODEPTR root, Interval I) {
+	if (root == NILPTR || (root->interval.low == I.low && root->interval.high == I.high))
+		return root;
+	if (I.low < root->interval.low)
+		return search(root->left, I);
+	else
+		return search(root->right, I);
 }
 
 // Function for left-rotating about a pivot node x
@@ -290,41 +344,4 @@ Interval overlapSearch(NODEPTR root, Interval I) {
  
     // Otherwise interval can only overlap with right subtree
     return overlapSearch(root->right, I);
-}
-
-int main() {
-	NIL.left = NIL.right = NIL.p = NILPTR;
-	NIL.color = BLACK;
-	NODEPTR tree = NILPTR;
-	
-	Interval intervals[] = {{15, 20}, {10, 30}, {17, 19}, {5, 20}, {12, 15}, {30, 40}};
-    
-    int n = sizeof(intervals)/sizeof(intervals[0]), i;
-    
-    for (i = 0; i < n; i++) {
-         rbInsert(&tree, intervals[i]);
-         cout << "Interval inserted: {" << intervals[i].low << ", " << intervals[i].high << "}" << endl;
-    }
- 
-  
-    Interval x = {14, 16};
- 
-    cout << "\nSearching for interval: {" << x.low << ", " << x.high << "}" << endl;
-    Interval result = overlapSearch(tree, x);
-    if (result.low == INT_MIN)
-        cout << "No Overlapping Interval." << endl;
-    else
-        cout << "Interval overlaps with {" << result.low << ", " << result.high << "}." << endl;
-        
-        
-    x = {21, 23};
- 
-    cout << "\nSearching for interval: {" << x.low << ", " << x.high << "}" << endl;
-    result = overlapSearch(tree, x);
-    if (result.low == INT_MIN)
-        cout << "No Overlapping Interval." << endl;
-    else
-        cout << "Interval overlaps with {" << result.low << ", " << result.high << "}." << endl;
-    
-	return 0;
 }
