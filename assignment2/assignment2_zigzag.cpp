@@ -32,6 +32,9 @@ int max(int a, int b) {
 int zigzag(int a[], int n) {
     int sequence[n][2], i = 0, j = 0, result = 1;
     
+    /* sequence[i][0] = Length of the longest zigzag subsequence ending at index i and last element < its previous element
+       sequence[i][1] = Length of the longest zigzag subsequence ending at index i and last element > its previous element
+    */
     for (i = 0; i < n; i++)
 		sequence[i][0] = sequence[i][1] = 1;
 
@@ -43,9 +46,9 @@ int zigzag(int a[], int n) {
             if( a[j] > a[i] && sequence[i][1] < sequence[j][0] + 1)
                 sequence[i][1] = sequence[j][0] + 1;
         }
-
-        if (result < max(sequence[i][0], sequence[i][1]))
-            result = max(sequence[i][0], sequence[i][1]);
+		max_length = max(sequence[i][0], sequence[i][1])
+        if (result < max_length)
+            result = max_length;
     }
 
     return result;
